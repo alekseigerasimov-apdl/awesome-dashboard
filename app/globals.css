@@ -124,3 +124,10 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* react-grid-layout placeholder to match dashboard style */
+.react-grid-item.react-grid-placeholder {
+  background: oklch(0.929 0.013 255.508);
+  opacity: 0.35;
+  border-radius: var(--radius-xl);
+}

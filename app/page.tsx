@@ -1,5 +1,10 @@
 "use client"
 
+import { useRef, useState, useLayoutEffect } from "react"
+import { ReactGridLayout } from "react-grid-layout"
+import "react-grid-layout/css/styles.css"
+import "react-resizable/css/styles.css"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Table,
@@ -21,6 +26,13 @@ import {
 import { RandomNumberWidget } from "@/components/widgets/random-number-widget"
 import { WeatherWidget } from "@/components/widgets/weather-widget"
 
+const WIDGET_LAYOUT = [
+  { i: "random", x: 0, y: 0, w: 6, h: 2 },
+  { i: "weather", x: 6, y: 0, w: 6, h: 2 },
+  { i: "revenue", x: 0, y: 2, w: 8, h: 4 },
+  { i: "orders", x: 8, y: 2, w: 4, h: 4 },
+]
+
 const data = [
   { month: "Jan", revenue: 4000 },
   { month: "Feb", revenue: 3000 },
@@ -30,6 +42,20 @@ const data = [
 ]
 
 export default function Home() {
+  const [layout, setLayout] = useState(WIDGET_LAYOUT)
+  const gridRef = useRef<HTMLDivElement>(null)
+  const [width, setWidth] = useState(0)
+
+  useLayoutEffect(() => {
+    const el = gridRef.current
+    if (!el) return
+    const updateWidth = () => setWidth(el.offsetWidth)
+    updateWidth()
+    const ro = new ResizeObserver(updateWidth)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
   return (
     <main className="min-h-screen flex">
       
@@ -91,71 +117,89 @@ export default function Home() {
           </Card>
         </div>
 
-        <div className="grid grid-cols-2 gap-6">
-          <RandomNumberWidget />
-          <WeatherWidget />
-        </div>
-
-        <div className="grid grid-cols-3 gap-6">
-
-          <Card className="col-span-2">
-            <CardHeader>
-              <CardTitle>Revenue Overview</CardTitle>
-            </CardHeader>
-
-            <CardContent>
-              <div className="h-40 flex items-center justify-center text-muted-foreground">
-              <ResponsiveContainer width="100%" height={200}>
-  <LineChart data={data}>
-    <XAxis dataKey="month" />
-    <YAxis />
-    <Tooltip />
-    <Line
-      type="monotone"
-      dataKey="revenue"
-      stroke="#2563eb"
-      strokeWidth={2}
-    />
-  </LineChart>
-</ResponsiveContainer>
+        <div ref={gridRef} className="w-full min-h-[320px]">
+          {width > 0 && (
+            <ReactGridLayout
+            layout={layout}
+            cols={12}
+            rowHeight={80}
+            width={width}
+            onLayoutChange={(newLayout) => setLayout([...newLayout])}
+            draggableHandle=".drag-handle"
+            className="layout"
+          >
+            <div key="random" className="h-full flex flex-col">
+              <div className="drag-handle cursor-grab active:cursor-grabbing h-6 flex items-center px-3 text-xs text-muted-foreground" />
+              <div className="flex-1 min-h-0">
+                <RandomNumberWidget />
               </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Orders</CardTitle>
-            </CardHeader>
-
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>User</TableHead>
-                    <TableHead>Amount</TableHead>
-                  </TableRow>
-                </TableHeader>
-
-                <TableBody>
-                  <TableRow>
-                    <TableCell>Alice</TableCell>
-                    <TableCell>$120</TableCell>
-                  </TableRow>
-
-                  <TableRow>
-                    <TableCell>Bob</TableCell>
-                    <TableCell>$80</TableCell>
-                  </TableRow>
-
-                  <TableRow>
-                    <TableCell>Charlie</TableCell>
-                    <TableCell>$240</TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-
+            </div>
+          
+            <div key="weather" className="h-full flex flex-col">
+              <div className="drag-handle cursor-grab active:cursor-grabbing h-6 flex items-center px-3 text-xs text-muted-foreground" />
+              <div className="flex-1 min-h-0">
+                <WeatherWidget />
+              </div>
+            </div>
+          
+            <div key="revenue" className="h-full flex flex-col">
+              <div className="drag-handle cursor-grab active:cursor-grabbing h-6 flex items-center px-3 text-xs text-muted-foreground" />
+              <Card className="h-full flex-1 min-h-0">
+                <CardHeader>
+                  <CardTitle>Revenue Overview</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={200}>
+                    <LineChart data={data}>
+                      <XAxis dataKey="month" />
+                      <YAxis />
+                      <Tooltip />
+                      <Line
+                        type="monotone"
+                        dataKey="revenue"
+                        stroke="#2563eb"
+                        strokeWidth={2}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </div>
+          
+            <div key="orders" className="h-full flex flex-col">
+              <div className="drag-handle cursor-grab active:cursor-grabbing h-6 flex items-center px-3 text-xs text-muted-foreground" />
+              <Card className="h-full flex-1 min-h-0">
+                <CardHeader>
+                  <CardTitle>Recent Orders</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>User</TableHead>
+                        <TableHead>Amount</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell>Alice</TableCell>
+                        <TableCell>$120</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Bob</TableCell>
+                        <TableCell>$80</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Charlie</TableCell>
+                        <TableCell>$240</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </div>
+          </ReactGridLayout>
+          )}
         </div>
 
       </section>
