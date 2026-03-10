@@ -25,6 +25,7 @@ import {
 } from "recharts"
 import { RandomNumberWidget } from "@/components/widgets/random-number-widget"
 import { WeatherWidget } from "@/components/widgets/weather-widget"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 const WIDGET_LAYOUT = [
   { i: "random", x: 0, y: 0, w: 6, h: 2 },
@@ -64,7 +65,7 @@ export default function Home() {
   return (
     <main className="min-h-screen flex">
       
-      <aside className="w-64 border-r p-6 bg-muted/40">
+      <aside className="w-64 border-r p-6 bg-muted/40 flex flex-col">
         <h2 className="text-xl font-bold mb-6">Dashboard</h2>
 
         <nav className="space-y-3">
@@ -73,6 +74,10 @@ export default function Home() {
           <p className="text-muted-foreground">Customers</p>
           <p className="text-muted-foreground">Settings</p>
         </nav>
+
+        <div className="mt-auto pt-6">
+          <ThemeToggle />
+        </div>
       </aside>
 
       <section className="flex-1 p-10 space-y-8">
