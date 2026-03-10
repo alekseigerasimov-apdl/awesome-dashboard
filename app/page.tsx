@@ -42,7 +42,12 @@ const data = [
 ]
 
 export default function Home() {
-  const [layout, setLayout] = useState(WIDGET_LAYOUT)
+  const [layout, setLayout] = useState(() => {
+    if (typeof window === "undefined") return WIDGET_LAYOUT
+  
+    const saved = localStorage.getItem("dashboard-layout")
+    return saved ? JSON.parse(saved) : WIDGET_LAYOUT
+  })
   const gridRef = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState(0)
 
@@ -120,14 +125,19 @@ export default function Home() {
         <div ref={gridRef} className="w-full min-h-[320px]">
           {width > 0 && (
             <ReactGridLayout
-            layout={layout}
-            cols={12}
-            rowHeight={80}
-            width={width}
-            onLayoutChange={(newLayout) => setLayout([...newLayout])}
-            draggableHandle=".drag-handle"
-            className="layout"
-          >
+              layout={layout}
+              width={width}
+              gridConfig={{ cols: 12, rowHeight: 80 }}
+              dragConfig={{
+                handle: ".drag-handle",
+                cancel: "input, button, textarea, select, [contenteditable]",
+              }}
+              onLayoutChange={(newLayout) => {
+                setLayout([...newLayout])
+                localStorage.setItem("dashboard-layout", JSON.stringify(newLayout))
+              }}
+              className="layout"
+            >
             <div key="random" className="h-full flex flex-col">
               <div className="drag-handle cursor-grab active:cursor-grabbing h-6 flex items-center px-3 text-xs text-muted-foreground" />
               <div className="flex-1 min-h-0">
